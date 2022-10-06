@@ -1,0 +1,5 @@
+server:
+  tomcat:
+    threads:
+      min-spare: 20
+      max: 200

@@ -1,0 +1,11 @@
+rootProject.name = 'microservice-base'
+
+include(':web')
+include(':common')
+include(':rpc-feign')
+include(':metrics')
+include(':tracing')
+
+// integration-tests
+include('rpc-feign-integration-test')
+project(':rpc-feign-integration-test').projectDir =file('./integration-tests/rpc-feign')
