@@ -28,11 +28,8 @@ import io.grpc.ClientInterceptor;
 import io.grpc.Grpc;
 import io.grpc.ServerInterceptor;
 import io.grpc.protobuf.services.ProtoReflectionService;
-import java.util.Arrays;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -47,11 +44,14 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author Freeman
  * @since 1.0.0
  */
-@AutoConfiguration
+@Configuration(proxyBeanMethods = false)
 public class MicroserviceBaseAutoConfiguration {
     private static final Logger log = LoggerFactory.getLogger(MicroserviceBaseAutoConfiguration.class);
 
