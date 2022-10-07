@@ -1,0 +1,54 @@
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
+    id 'org.springframework.boot' version "${springBootVersion}"
+    id "com.google.protobuf" version "${protobufPluginVersion}"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "io.grpc:grpc-bom:${grpcVersion}"
+    }
+}
+
+dependencies {
+    implementation project(':microservice-spring-boot-starter')
+    implementation "io.grpc:grpc-netty-shaded"
+    implementation "io.grpc:grpc-services"
+    if (JavaVersion.current().isJava9Compatible()) {
+        implementation "jakarta.annotation:jakarta.annotation-api"
+    }
+    implementation "build.buf.protoc-gen-validate:pgv-java-grpc:${pgvVersion}"
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+protobuf {
+    def suffix = osdetector.os == 'osx' ? ':osx-x86_64' : ''
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protocVersion}" + suffix
+    }
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}" + suffix
+        }
+        javapgv {
+            artifact = "build.buf.protoc-gen-validate:protoc-gen-validate:${pgvVersion}"
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+            javapgv { option "lang=java" }
+        }
+    }
+}

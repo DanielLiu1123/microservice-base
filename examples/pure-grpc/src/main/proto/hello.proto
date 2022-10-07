@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package hello;
+
+option java_multiple_files = true;
+option java_package = "com.freemanan.example";
+option java_outer_classname = "HelloProto";
+
+import "validate/validate.proto";
+import "google/protobuf/empty.proto";
+
+service Hello {
+  rpc SayHello (HelloRequest) returns (HelloResponse) {}
+  rpc Greet (HelloRequest) returns (HelloResponse) {}
+  rpc Exception (google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
+message HelloRequest {
+  string name = 1 [(validate.rules).string = {
+    min_bytes: 1,
+    max_bytes: 15
+  }];
+}
+
+message HelloResponse {
+  string message = 1;
+}

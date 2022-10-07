@@ -1,0 +1,104 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
+    id 'com.diffplug.spotless' version "${spotlessVersion}"
+    id "com.github.spotbugs" version "${spotbugsVersion}"
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        mavenBom "io.grpc:grpc-bom:${grpcVersion}"
+    }
+}
+
+dependencies {
+    api 'org.springframework.boot:spring-boot-starter'
+
+    // http
+    compileOnly 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    compileOnly 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // grpc
+    compileOnly "io.grpc:grpc-netty-shaded"
+    compileOnly "io.grpc:grpc-services"
+    if (JavaVersion.current().isJava9Compatible()) {
+        compileOnly "jakarta.annotation:jakarta.annotation-api"
+    }
+    compileOnly "build.buf.protoc-gen-validate:pgv-java-grpc:${pgvVersion}"
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+spotless {
+    java {
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+        palantirJavaFormat()
+    }
+}
+
+spotbugs {
+    spotbugsTest.enabled = false
+    omitVisitors = ['FindReturnRef', 'MethodReturnCheck']
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier.set('sources')
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+
+            // see https://stackoverflow.com/questions/61500897/gradle-springboot-mavenpublish-publication-only-contains-dependencies-and-or
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username System.getenv('MAVEN_USER')
+                password System.getenv('MAVEN_PASSWORD')
+            }
+            if (rootProject.version =~ /-SNAPSHOT$/) {
+                url "https://oss.sonatype.org/content/repositories/snapshots"
+            } else {
+                url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            }
+        }
+    }
+}

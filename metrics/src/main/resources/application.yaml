@@ -1,5 +1,0 @@
-management:
-  metrics:
-    tags:
-      application: ${spring.application.name}
-username: fake
