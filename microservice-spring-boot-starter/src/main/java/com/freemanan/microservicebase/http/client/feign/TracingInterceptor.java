@@ -15,9 +15,11 @@ public class TracingInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate template) {
         ThreadContext ctx = ThreadContextHolder.get();
-        for (Header header : ctx.getHeaders()) {
-            if (!template.headers().containsKey(header.getKey())) {
-                template.header(header.getKey(), header.getValue());
+        if (ctx != null) {
+            for (Header header : ctx.getHeaders()) {
+                if (!template.headers().containsKey(header.getKey())) {
+                    template.header(header.getKey(), header.getValue());
+                }
             }
         }
     }

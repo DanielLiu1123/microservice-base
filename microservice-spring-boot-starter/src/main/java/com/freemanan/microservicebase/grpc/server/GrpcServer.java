@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import io.grpc.internal.GrpcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -57,7 +59,7 @@ public class GrpcServer implements SmartLifecycle, ApplicationEventPublisherAwar
         try {
             server.start();
             isRunning.set(true);
-            log.info("gRPC server started on port: {}", server.getPort());
+            log.info("gRPC server started on port: {} ({})", server.getPort(), GrpcUtil.getGrpcBuildVersion());
 
             publisher.publishEvent(new GrpcServerStartedEvent(server));
             waitUntilShutdown();

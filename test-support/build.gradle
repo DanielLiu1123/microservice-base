@@ -1,0 +1,26 @@
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    api platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+
+    compileOnly("org.springframework.boot:spring-boot-starter-test")
+
+    // test support, taken from
+    // https://github.com/spring-projects/spring-boot/tree/main/spring-boot-project/spring-boot-tools/spring-boot-test-support
+//    api("jakarta.inject:jakarta.inject-api:1.0.5")
+    api("org.junit.platform:junit-platform-engine")
+    api("org.junit.platform:junit-platform-launcher")
+    api("org.apache.maven:maven-resolver-provider:3.6.3")
+    api("org.apache.maven.resolver:maven-resolver-connector-basic:1.6.3")
+    api("org.apache.maven.resolver:maven-resolver-impl:1.6.3")
+    api("org.apache.maven.resolver:maven-resolver-transport-http:1.6.3") {
+        exclude group: "org.slf4j", module: "jcl-over-slf4j"
+    }
+}
