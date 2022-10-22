@@ -3,6 +3,7 @@ rootProject.name = 'microservice-base'
 include(':microservice-spring-boot-starter')
 include(':test-support')
 
+// examples
 include(':examples:http-grpc')
 include(':examples:pure-grpc')
 include(':examples:pure-http')

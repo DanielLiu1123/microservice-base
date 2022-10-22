@@ -12,8 +12,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * @author Freeman
  * @since 1.0.0
  */
-public class LoggingInterceptor implements HandlerInterceptor {
-    private static final Logger log = LoggerFactory.getLogger(LoggingInterceptor.class);
+public class LoggingHandlerInterceptor implements HandlerInterceptor {
+    private static final Logger log = LoggerFactory.getLogger(LoggingHandlerInterceptor.class);
     private static final String START_TIME = "START_TIME";
 
     @Override

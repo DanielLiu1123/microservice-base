@@ -5,7 +5,7 @@ microservice-base:
   grpc:
     client:
       enabled: true
-      stubs:
+      channels:
         hello: localhost:9090
     server:
       debug-enabled: true

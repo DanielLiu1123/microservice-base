@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2019 the original author or authors.
+ * Copyright 2012-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,40 @@
 
 package com.freemanan.testsupport;
 
-import java.io.File;
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * Annotation used to exclude entries from the classpath.
+ * Improves JUnit5's {@link org.junit.jupiter.api.condition.DisabledOnOs} by adding an
+ * architecture check.
  *
- * @author Andy Wilkinson
- * @since 1.5.0
+ * @author Moritz Halbritter
+ * @since 2.5.11
  */
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Documented
-@ExtendWith(ModifiedClassPathExtension.class)
-public @interface ClassPathExclusions {
+@ExtendWith(DisabledOnOsCondition.class)
+public @interface DisabledOnOs {
+
     /**
-     * One or more Ant-style patterns that identify entries to be excluded from the class
-     * path. Matching is performed against an entry's {@link File#getName() file name}.
-     * For example, to exclude Hibernate Validator from the classpath,
-     * {@code "hibernate-validator-*.jar"} can be used.
-     * @return the exclusion patterns
+     * See {@link org.junit.jupiter.api.condition.DisabledOnOs#value()}.
+     * @return os
      */
-    String[] value();
+    OS[] os();
+
+    /**
+     * Architecture of the operating system.
+     * @return architecture
+     */
+    String architecture();
+
+    /**
+     * See {@link org.junit.jupiter.api.condition.DisabledOnOs#disabledReason()}.
+     * @return disabled reason
+     */
+    String disabledReason() default "";
 }

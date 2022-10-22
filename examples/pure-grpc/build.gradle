@@ -1,8 +1,8 @@
 plugins {
     id 'java'
-    id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
-    id 'org.springframework.boot' version "${springBootVersion}"
-    id "com.google.protobuf" version "${protobufPluginVersion}"
+    id 'io.spring.dependency-management'
+    id 'org.springframework.boot'
+    id "com.google.protobuf"
 }
 
 repositories {

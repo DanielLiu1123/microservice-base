@@ -1,35 +1,16 @@
-plugins {
-    id 'java-library'
-    id 'maven-publish'
-    id 'signing'
-    id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
-    id 'com.diffplug.spotless' version "${spotlessVersion}"
-    id "com.github.spotbugs" version "${spotbugsVersion}"
-}
-
-version = System.getenv('RELEASE') ? version.substring(0, version.lastIndexOf('-SNAPSHOT')) : version
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-        mavenBom "io.grpc:grpc-bom:${grpcVersion}"
-    }
-}
-
 dependencies {
+    api platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    annotationProcessor platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+    compileOnly platform("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+    compileOnly platform("io.grpc:grpc-bom:${grpcVersion}")
+
     api 'org.springframework.boot:spring-boot-starter'
 
     // http
     compileOnly 'org.springframework.boot:spring-boot-starter-web'
-    compileOnly 'org.springframework.cloud:spring-cloud-starter-openfeign'
-
+    compileOnly 'org.springframework.boot:spring-boot-starter-actuator'
     compileOnly 'org.springframework.boot:spring-boot-starter-data-redis'
+    compileOnly 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
     // grpc
     compileOnly "io.grpc:grpc-netty-shaded"
@@ -39,104 +20,18 @@ dependencies {
     }
     compileOnly "build.buf.protoc-gen-validate:pgv-java-grpc:${pgvVersion}"
 
+    // Sentry integration, exception tracking and distributed tracing
+    compileOnly platform("io.sentry:sentry-bom:${sentryVersion}")
+    compileOnly("io.sentry:sentry-spring-boot-starter")
+    compileOnly("io.sentry:sentry-openfeign")
+
     compileOnly 'org.projectlombok:lombok'
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation project(':test-support')
 }
 
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
-
-test {
-    useJUnitPlatform()
-}
-
-spotless {
-    java {
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
-        palantirJavaFormat()
-    }
-}
-
-spotbugs {
-    spotbugsTest.enabled = false
-    omitVisitors = ['FindReturnRef', 'MethodReturnCheck']
-}
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allJava
-    archiveClassifier.set('sources')
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-
-            pom {
-                name = 'Microservice Spring Boot Starter'
-                description = 'Microservice Spring Boot Starter'
-                url = 'https://github.com/DanielLiu1123/microservice-base'
-                licenses {
-                    license {
-                        name = 'MIT License'
-                        url = 'https://www.opensource.org/licenses/mit-license.php'
-                        distribution = 'repo'
-                    }
-                }
-                developers {
-                    developer {
-                        id = 'Freeman'
-                        name = 'Freeman Liu'
-                        email = 'llw599502537@gmail.com'
-                    }
-                }
-                scm {
-                    connection = 'scm:git:git://github.com/DanielLiu1123/microservice-base.git'
-                    developerConnection = 'scm:git:ssh@github.com/DanielLiu1123/microservice-base.git'
-                    url = 'https://github.com/DanielLiu1123/microservice-base'
-                }
-            }
-
-            // see https://stackoverflow.com/questions/61500897/gradle-springboot-mavenpublish-publication-only-contains-dependencies-and-or
-            versionMapping {
-                usage('java-api') {
-                    fromResolutionOf('runtimeClasspath')
-                }
-                usage('java-runtime') {
-                    fromResolutionResult()
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            credentials {
-                username System.getenv('OSSRH_USER')
-                password System.getenv('OSSRH_PASSWORD')
-            }
-            if (version.endsWith('-SNAPSHOT')) {
-                url 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
-            } else {
-                url 'https://s01.oss.sonatype.org/content/repositories/releases/'
-            }
-        }
-    }
-
-    tasks.withType(Sign) {
-        onlyIf { !version.endsWith('-SNAPSHOT') }
-    }
-
-    signing {
-        useGpgCmd()
-        sign publishing.publications.mavenJava
-    }
-}
+apply from: "${rootProject.projectDir}/deploy.gradle"

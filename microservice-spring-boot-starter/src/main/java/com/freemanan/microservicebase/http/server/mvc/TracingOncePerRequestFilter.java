@@ -17,11 +17,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Freeman
  * @since 1.0.0
  */
-public class HttpMvcTracingFilter extends OncePerRequestFilter {
+public class TracingOncePerRequestFilter extends OncePerRequestFilter {
 
     private final List<HeaderTransferor> headerTransferors;
 
-    public HttpMvcTracingFilter(List<HeaderTransferor> headerTransferors) {
+    public TracingOncePerRequestFilter(List<HeaderTransferor> headerTransferors) {
         this.headerTransferors = headerTransferors;
     }
 

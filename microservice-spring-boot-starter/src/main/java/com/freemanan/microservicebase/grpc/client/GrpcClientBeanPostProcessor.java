@@ -21,6 +21,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.EnvironmentAware;
+import org.springframework.core.Ordered;
+import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -30,7 +32,11 @@ import org.springframework.util.StringUtils;
  * @since 1.0.0
  */
 public class GrpcClientBeanPostProcessor
-        implements BeanPostProcessor, EnvironmentAware, BeanFactoryAware, BeanDefinitionRegistryPostProcessor {
+        implements BeanPostProcessor,
+                EnvironmentAware,
+                BeanFactoryAware,
+                BeanDefinitionRegistryPostProcessor,
+                PriorityOrdered {
 
     private BeanFactory beanFactory;
     private final Map<String, String> channels = new HashMap<>();
@@ -38,12 +44,10 @@ public class GrpcClientBeanPostProcessor
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        Class<?> beanClass = bean.getClass();
-        Field[] fields = beanClass.getDeclaredFields();
-        for (Field field : fields) {
+        ReflectionUtils.doWithFields(bean.getClass(), field -> {
             GrpcClient anno = field.getAnnotation(GrpcClient.class);
             if (anno == null) {
-                continue;
+                return;
             }
             if (!AbstractStub.class.isAssignableFrom(field.getType())) {
                 throw new BeanInitializationException("GrpcClient field must be a subclass of AbstractStub!");
@@ -54,13 +58,14 @@ public class GrpcClientBeanPostProcessor
             if (stub != null) {
                 field.setAccessible(true);
                 ReflectionUtils.setField(field, bean, stub);
-                continue;
+                return;
             }
             createStubAndPut2BeanFactory(name, clz, field, bean);
-        }
+        });
         return bean;
     }
 
+    @SuppressWarnings("rawtypes")
     private void createStubAndPut2BeanFactory(
             String clientName, Class<? extends AbstractStub> clz, Field field, Object bean) {
         if (!channels.containsKey(clientName)) {
@@ -98,7 +103,7 @@ public class GrpcClientBeanPostProcessor
             return;
         }
         HashMap<String, String> properties =
-                binder.bindOrCreate(GrpcProperties.PREFIX + ".client.stubs", HashMap.class);
+                binder.bindOrCreate(GrpcProperties.PREFIX + ".client.channels", HashMap.class);
         properties.forEach((clientName, address) -> {
             if (!StringUtils.hasText(address)) {
                 throw new IllegalStateException("GrpcClient address must not be empty!");
@@ -122,5 +127,10 @@ public class GrpcClientBeanPostProcessor
         registry.registerBeanDefinition(
                 StringUtils.uncapitalize(CompositeClientInterceptor.class.getSimpleName()),
                 builder.getBeanDefinition());
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE;
     }
 }

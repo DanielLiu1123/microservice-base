@@ -3,7 +3,7 @@ syntax = "proto3";
 package hello;
 
 option java_multiple_files = true;
-option java_package = "com.freemanan.example";
+option java_package = "com.freemanan.example.hello.api";
 option java_outer_classname = "HelloProto";
 
 import "validate/validate.proto";

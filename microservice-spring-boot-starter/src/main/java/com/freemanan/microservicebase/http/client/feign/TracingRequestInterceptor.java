@@ -10,7 +10,7 @@ import feign.RequestTemplate;
  * @author Freeman
  * @since 1.0.0
  */
-public class TracingInterceptor implements RequestInterceptor {
+public class TracingRequestInterceptor implements RequestInterceptor {
 
     @Override
     public void apply(RequestTemplate template) {

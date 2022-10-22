@@ -5,16 +5,14 @@ import static com.freemanan.microservicebase.grpc.GrpcProperties.PREFIX;
 import com.freemanan.microservicebase.core.Const;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * @author Freeman
  * @since 1.0.0
  */
-@Getter
-@Setter
+@Data
 @ConfigurationProperties(PREFIX)
 public class GrpcProperties {
 
@@ -23,8 +21,12 @@ public class GrpcProperties {
     private Client client = new Client();
     private Server server = new Server();
 
-    @Getter
-    @Setter
+    /**
+     * Whether to enable grpc tracing.
+     */
+    private boolean tracingEnabled = true;
+
+    @Data
     public static class Client {
 
         /**
@@ -39,11 +41,10 @@ public class GrpcProperties {
          * gRPC client config.
          * <p> e.g. service-name: localhost:9090
          */
-        private Map<String, String> stubs = new LinkedHashMap<>();
+        private Map<String, String> channels = new LinkedHashMap<>();
     }
 
-    @Getter
-    @Setter
+    @Data
     public static class Server {
 
         /**
@@ -67,19 +68,18 @@ public class GrpcProperties {
          */
         private int port = 8080;
 
+        // ob
         private Health health = new Health();
-        private Monitoring monitoring = new Monitoring();
+        private Observability observability = new Observability();
     }
 
-    @Getter
-    @Setter
+    @Data
     public static class Health {
 
         private DataSource dataSource = new DataSource();
         private Redis redis = new Redis();
 
-        @Getter
-        @Setter
+        @Data
         public static class DataSource {
 
             /**
@@ -92,8 +92,7 @@ public class GrpcProperties {
             private String validationQuery = "SELECT 1;";
         }
 
-        @Getter
-        @Setter
+        @Data
         public static class Redis {
 
             /**
@@ -103,14 +102,12 @@ public class GrpcProperties {
         }
     }
 
-    @Getter
-    @Setter
-    public static class Monitoring {
+    @Data
+    public static class Observability {
 
         private Metrics metrics = new Metrics();
 
-        @Getter
-        @Setter
+        @Data
         public static class Metrics {
 
             /**

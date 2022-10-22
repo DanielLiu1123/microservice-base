@@ -15,7 +15,7 @@ import java.util.List;
  * @author Freeman
  * @since 1.0.0
  */
-public class GrpcTracingClientInterceptor implements ClientInterceptor {
+public class TracingClientInterceptor implements ClientInterceptor {
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
             MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {

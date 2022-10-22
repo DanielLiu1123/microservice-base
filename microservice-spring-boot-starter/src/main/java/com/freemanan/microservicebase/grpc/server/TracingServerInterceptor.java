@@ -16,11 +16,11 @@ import java.util.List;
  * @author Freeman
  * @since 1.0.0
  */
-public class GrpcTracingServerInterceptor implements ServerInterceptor {
+public class TracingServerInterceptor implements ServerInterceptor {
 
     private final List<HeaderTransferor> headerTransferors;
 
-    public GrpcTracingServerInterceptor(List<HeaderTransferor> headerTransferors) {
+    public TracingServerInterceptor(List<HeaderTransferor> headerTransferors) {
         this.headerTransferors = headerTransferors;
     }
 
@@ -56,11 +56,6 @@ public class GrpcTracingServerInterceptor implements ServerInterceptor {
         }
 
         @Override
-        public void onReady() {
-            doInContext(super::onReady);
-        }
-
-        @Override
         public void onMessage(Req message) {
             doInContext(() -> super.onMessage(message));
         }
@@ -68,16 +63,6 @@ public class GrpcTracingServerInterceptor implements ServerInterceptor {
         @Override
         public void onHalfClose() {
             doInContext(super::onHalfClose);
-        }
-
-        @Override
-        public void onCancel() {
-            doInContext(super::onCancel);
-        }
-
-        @Override
-        public void onComplete() {
-            doInContext(super::onComplete);
         }
 
         private void doInContext(Runnable runnable) {
